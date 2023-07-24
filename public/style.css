@@ -1,0 +1,137 @@
+/* body{
+    margin: 0;
+    padding: 0;
+}
+.container{
+    width: 80%;
+    background-color: white;
+    margin: auto;
+    box-shadow: 0px 0px 37px -12px;
+    border-radius: 10px;
+}
+.container h1{
+    text-align: center;
+    
+}   
+form{
+    width: 40%;
+    margin: auto;
+    text-align: left;
+    box-shadow: 5px 5px 5px 5px;        
+}
+form label{
+    font-size: 25px;
+    margin-top: 15px;
+    text-align: left;
+}
+form input{
+    width: 90%;
+    font-size: 23px;
+    padding: 15px;
+    margin-top: 10px;
+    border-radius: 5px;
+    height: 50px;
+}
+
+input[type="submit"] {
+    width: 30%;
+    margin: auto;
+    margin-top: 20px;
+    display: block;
+} */
+
+input[type=text], input[type=password] {
+    width: 100%;
+    padding: 15px;
+    margin: 5px 0 22px 0;
+    display: inline-block;
+    border: none;
+    background: #f1f1f1;
+}
+
+input[type=text]:focus, input[type=password]:focus {
+    background-color: #ddd;
+    outline: none;
+}
+
+hr {
+    border: 1px solid #f1f1f1;
+    margin-bottom: 25px;
+}
+
+button {
+    background-color: #04AA6D;
+    color: white;
+    padding: 14px 20px;
+    margin: 8px 0;
+    border: none;
+    cursor: pointer;
+    width: 100%;
+    opacity: 0.9;
+    }
+
+button:hover {
+    opacity:1;
+}
+
+.cancelbtn {
+    padding: 14px 20px;
+    background-color: #f44336;
+}
+
+.cancelbtn, .registerbtn {
+    float: left;
+    width: 50%;
+    }
+
+.container {
+   padding: 16px;
+}
+
+.clearfix::after {
+    content: "";
+    clear: both;
+    display: table;
+}
+
+@media screen and (max-width: 300px) {
+.cancelbtn, .signupbtn {
+    width: 100%;
+    }
+}
+
+.error{
+    color: red;
+    margin: 0 px;
+    text-align: left;
+}
+
+/* login page css */
+.h1tag{
+    text-align: center;
+    font-weight: 600;
+    font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+}
+.form1{
+    width: 40%;
+    height: 550px;
+    margin: auto;
+    box-shadow: 5px 5px 5px 5px;
+}
+.form1 label{
+    font-size: 25px;
+    margin-left: 15px;
+}
+.form1 input{
+    width: 95%;
+    font-size: 25px;
+    margin-left: 15px;
+    border-radius: 10px;
+}
+#submit{
+    width: 50%;
+    height: 50px;
+    margin: 0 auto;
+    display: block;
+    margin-top: 10px;
+}

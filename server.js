@@ -1,9 +1,9 @@
 const express = require('express');
-const {MongoClient} = require('mongodb');
+const { MongoClient } = require('mongodb');
 const app = express();
 const port = 3000;
 const mongoose = require('mongoose');
-
+const bcrypt = require('bcrypt');
 
 // Connection URL and database name
 const url = 'mongodb+srv://saurabhandani:saurabhandani@cluster0.qyakbnq.mongodb.net';
@@ -12,44 +12,129 @@ const dbName = 'saurabh';
 // Serve the HTML files
 app.use(express.static('public'));
 
+
+
 // Parse URL-encoded bodies
 app.use(express.urlencoded({ extended: true }));
 
 
+
 // Create a schema for the data
 const dataSchema = new mongoose.Schema({
-  input1: String,
-  input2: String
+  username: String,
+  email: String,
+  password: String
 });
 // Create a model for the data
 const Data = mongoose.model('Data', dataSchema);
 
+app.get('/login', (req, res) => {
+  res.redirect('login.html');
+});
 
 // Connect to the MongoDB database
 mongoose.connect(`${url}/${dbName}`, { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => {
     console.log('Connected to the database');
 
-    // Handle POST request
-    app.post('/submit-form', (req, res) => {
-      const { input1, input2 } = req.body;
+//Post Method start.............................   
+    app.post('/submit-form', async (req, res) => {
+      const { username, email, password } = req.body;
 
-      // Create a new data document
-      const newData = new Data({
-        input1,
-        input2
-      });
+      try {
+        // Check if the username or email is already registered
+        const existingUser = await Data.findOne({ $or: [{ username }, { email }] });
+        if (existingUser) {
+          return res.render('register', { error: 'Username or email already exists' });
+        }
 
-      // Save the data document
-      newData.save()
-        .then(() => {
-          console.log('Data stored successfully');
-          return res.redirect('/success.html');
-        })
-        .catch(err => {
-          console.error('Error storing data', err);
-          return res.redirect('/error.html');
-        });
+        // Hash the password
+        const hashedPassword = await bcrypt.hash(password, 10);
+
+        // Create a new user
+        const newUser = new Data({ username, email, password: hashedPassword });
+        await newUser.save();
+
+        return res.redirect('/login.html');
+      } catch (error) {
+        console.error('Failed to register user:', error);
+        return res.redirect('/error.html');
+      }
+    });
+
+//Post Method End...................
+//Get Method Start.....................
+    // Login route
+    app.get('/login', (req, res) => {
+      return res.redirect('/dashboard.html');
+    });
+
+    app.post('/login', async (req, res) => {
+      const { username, password } = req.body;
+
+      try {
+        // Find the user by username
+        const user = await Data.findOne({ username});
+        if (!user) {
+          return res.render('login', { error: 'Invalid username or password' });
+        }
+
+        // Compare the password
+        const isPasswordValid = await bcrypt.compare(password, user.password);
+        if (!isPasswordValid) {
+          return res.render('login', { error: 'Invalid username or password' });
+        }
+
+        return res.redirect('/dashboard.html');
+      } catch (error) {
+        console.error('Failed to login:', error);
+        res.render('login', { error: 'Failed to login' });
+      }
+    });
+
+//Get Method End......................................
+
+    // app.put('/update/:id',async (req, res) => {
+    //   const { id } = req.params;
+    //   const { username, email} = req.body;
+
+    //   try {
+    //     const updateuser = await Data.findByIdAndUpdate(id, {username, email},{new: true});
+    //     if (!updateuser){
+    //       return res.status(404).json({message:`cannot update user with id ${id}`});
+    //     }
+
+    //     return res.json({success: true,message: `user updated successfully`, user: updateuser});
+    //   }catch(error){
+    //     console.error(error);
+    //     res.status(500).json({success: false,message:`internal server error`});
+    //   }
+    // });
+
+    app.put('/update/:id', async (req, res) => {
+      const { id } = req.params;
+      const { username, email } = req.body;
+    
+      try {
+        // Find the user by id
+        const user = await Data.findByIdAndUpdate(id,{username, email},{new: true});
+    
+        if (!user) {
+          return res.status(404).json({ message: `Cannot find user with id ${id}` });
+        }
+    
+        // Update the user properties
+        user.username ;
+        user.email ;
+    
+        // Save the updated user in the database
+        await user.save();
+    
+        return res.json({ success: true, message: 'User updated successfully', user: user });
+      } catch (error) {
+        console.error(error);
+        res.status(500).json({ success: false, message: 'Internal server error' });
+      }
     });
 
     // Start the server
