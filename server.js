@@ -1,6 +1,6 @@
 const express = require('express');
-const { MongoClient } = require('mongodb');
 const app = express();
+const bodyParser = require('body-parser');
 const port = 3000;
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
@@ -12,7 +12,8 @@ const dbName = 'saurabh';
 // Serve the HTML files
 app.use(express.static('public'));
 
-
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
 
 // Parse URL-encoded bodies
 app.use(express.urlencoded({ extended: true }));
@@ -37,7 +38,7 @@ mongoose.connect(`${url}/${dbName}`, { useNewUrlParser: true, useUnifiedTopology
   .then(() => {
     console.log('Connected to the database');
 
-//Post Method start.............................   
+    //Post Method start.............................   
     app.post('/submit-form', async (req, res) => {
       const { username, email, password } = req.body;
 
@@ -48,7 +49,7 @@ mongoose.connect(`${url}/${dbName}`, { useNewUrlParser: true, useUnifiedTopology
           return res.render('register', { error: 'Username or email already exists' });
         }
 
-        // Hash the password
+        // Hash the password 
         const hashedPassword = await bcrypt.hash(password, 10);
 
         // Create a new user
@@ -62,8 +63,8 @@ mongoose.connect(`${url}/${dbName}`, { useNewUrlParser: true, useUnifiedTopology
       }
     });
 
-//Post Method End...................
-//Get Method Start.....................
+    //Post Method End......................
+    //Get Method Start.....................
     // Login route
     app.get('/login', (req, res) => {
       return res.redirect('/dashboard.html');
@@ -74,7 +75,7 @@ mongoose.connect(`${url}/${dbName}`, { useNewUrlParser: true, useUnifiedTopology
 
       try {
         // Find the user by username
-        const user = await Data.findOne({ username});
+        const user = await Data.findOne({ username });
         if (!user) {
           return res.render('login', { error: 'Invalid username or password' });
         }
@@ -92,7 +93,7 @@ mongoose.connect(`${url}/${dbName}`, { useNewUrlParser: true, useUnifiedTopology
       }
     });
 
-//Get Method End......................................
+    //Get Method End......................................
 
     // app.put('/update/:id',async (req, res) => {
     //   const { id } = req.params;
@@ -112,25 +113,20 @@ mongoose.connect(`${url}/${dbName}`, { useNewUrlParser: true, useUnifiedTopology
     // });
 
     app.put('/update/:id', async (req, res) => {
-      const { id } = req.params;
-      const { username, email } = req.body;
-    
+      const  id  = req.params.id;
+      const  updates  = req.body;
+
       try {
         // Find the user by id
-        const user = await Data.findByIdAndUpdate(id,{username, email},{new: true});
-    
-        if (!user) {
+        const user = await Data.updateOne({_id:id}, updates);
+
+        
+        if(user.nModified === 0) {
           return res.status(404).json({ message: `Cannot find user with id ${id}` });
         }
-    
-        // Update the user properties
-        user.username ;
-        user.email ;
-    
-        // Save the updated user in the database
-        await user.save();
-    
-        return res.json({ success: true, message: 'User updated successfully', user: user });
+        
+
+        return res.status(200).json({ success: true, message: 'User updated successfully', user});
       } catch (error) {
         console.error(error);
         res.status(500).json({ success: false, message: 'Internal server error' });
